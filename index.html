@@ -589,14 +589,15 @@
     </div>
 
     <script>
-        const CLIENT_ID = '10f433657d1018e7003e5cd1cb9c61d7';
-        const TREASURY_ADDRESS = '0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e';
-        const CONTRACT_ADDRESS = '0xe274a85a123f9270d1e0617f7e04632d9d8640d9';
-        const CHAIN_ID = 8453; // Base
+        document.addEventListener("DOMContentLoaded", function() {
+            const CLIENT_ID = '10f433657d1018e7003e5cd1cb9c61d7';
+            const TREASURY_ADDRESS = '0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e';
+            const CONTRACT_ADDRESS = '0xe274a85a123f9270d1e0617f7e04632d9d8640d9';
+            const CHAIN_ID = 8453; // Base
 
-        let sdk;
-        let contract;
-        let signer;
+            let sdk;
+            let contract;
+            let signer;
 
         // Initialize Thirdweb
         async function initThirdweb() {
@@ -811,6 +812,8 @@
                 notification.remove();
             }, 3000);
         }
+        
+        }); // End DOMContentLoaded
     </script>
 </body>
 </html>
