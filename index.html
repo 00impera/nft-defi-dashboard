@@ -6,64 +6,103 @@
   <title>CryptoLocker - NFT DeFi Platform</title>
   <script src="https://unpkg.com/thirdweb@latest/dist/thirdweb.umd.js"></script>
   <style>
-    body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; }
-    .btn { background: transparent; color: #00ff41; border: 2px solid #00ff41; padding: 1rem 2rem; cursor: pointer; }
-    .notification { position: fixed; top: 100px; right: 20px; background: #1a1a1a; border: 2px solid #00ff41; padding: 1rem 2rem; border-radius: 5px; z-index: 1000; }
+    body {
+      background: #0a0a0a;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+    }
+    main {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ff4133;
+    }
+    section { margin-bottom: 2rem; }
+    form { display: flex; flex-direction: column; gap: 1rem; }
+    input, textarea, select, button {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.7rem;
+      border-radius: 6px;
+      border: 1px solid #00ff4166;
+      background: #0a0a0a;
+      color: #00ff41;
+    }
+    button {
+      background: transparent;
+      border: 2px solid #00ff41;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    button:hover {
+      background: #00ff41;
+      color: #0a0a0a;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .notification {
+      position: fixed; top: 100px; right: 20px;
+      background: #1a1a1a; border: 2px solid #00ff41;
+      padding: 1rem 2rem; border-radius: 5px; z-index: 1000;
+    }
+    nav { text-align: right; margin: 1rem 2rem 0 0; }
+    @media (max-width: 600px) {
+      main { max-width: 98vw; padding: 0.5rem; }
+      section { margin-bottom: 1.2rem; }
+    }
   </style>
 </head>
 <body>
   <nav>
     <button class="btn" id="connectBtn">Connect Wallet</button>
   </nav>
-
   <main>
     <section>
       <h2>⚡ Quick Mint NFT</h2>
       <form id="quickMintForm">
-        <input type="text" id="nftName" placeholder="NFT Name" required /><br/>
-        <textarea id="nftDescription" placeholder="Description"></textarea><br/>
+        <input type="text" id="nftName" placeholder="NFT Name" required />
+        <textarea id="nftDescription" placeholder="Description"></textarea>
         <select id="contentType">
           <option value="image">Image</option>
           <option value="video">Video</option>
           <option value="audio">Audio</option>
           <option value="text">Text</option>
-        </select><br/>
-        <input type="file" id="nftFile" accept="image/*,video/*,audio/*,text/*" /><br/>
+        </select>
+        <input type="file" id="nftFile" accept="image/*,video/*,audio/*,text/*" />
         <button type="button" id="payAndMintBtn" class="btn">💳 Pay & Mint NFT</button>
         <div id="checkout-widget-container" style="margin-top: 1rem;"></div>
       </form>
     </section>
-
     <section>
       <h2>📁 Create Collection</h2>
       <form id="createCollectionForm">
-        <input type="text" id="collectionName" placeholder="Collection Name" required /><br/>
-        <textarea id="collectionDescription" placeholder="Description"></textarea><br/>
+        <input type="text" id="collectionName" placeholder="Collection Name" required />
+        <textarea id="collectionDescription" placeholder="Description"></textarea>
         <button type="submit" class="btn">Create Collection</button>
       </form>
     </section>
-
     <section>
       <h2>🔒 Lock Tokens</h2>
       <form id="lockForm">
-        <input type="text" id="tokenAddress" placeholder="Token Address" required /><br/>
-        <input type="number" id="lockAmount" placeholder="Amount" step="0.01" required /><br/>
+        <input type="text" id="tokenAddress" placeholder="Token Address" required />
+        <input type="number" id="lockAmount" placeholder="Amount" step="0.01" required />
         <select id="lockDuration">
           <option value="7">7 Days</option>
           <option value="30">30 Days</option>
           <option value="90">90 Days</option>
-        </select><br/>
-        <label><input type="checkbox" id="useYield" /> Enable Aave Yield</label><br/>
+        </select>
+        <label><input type="checkbox" id="useYield" /> Enable Aave Yield</label>
         <button type="submit" class="btn">Lock Tokens</button>
       </form>
     </section>
-
     <section>
       <h2>📊 Platform Stats</h2>
       <div>Total NFTs Minted: <span id="totalNFTs">0</span></div>
     </section>
   </main>
-
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const CLIENT_ID = '10f433657d1018e7003e5cd1cb9c61d7';
