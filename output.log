@@ -1,0 +1,10 @@
+
+Error: BASE_PRIVATE_KEY not found
+    at main (/home/impera00/projects/nft-crypto-locker/cryptolocker-defi/scripts/simple-upgrade.ts:38:26)
+    at <anonymous> (/home/impera00/projects/nft-crypto-locker/cryptolocker-defi/scripts/simple-upgrade.ts:120:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async runScriptWithHardhat (/home/impera00/projects/nft-crypto-locker/cryptolocker-defi/node_modules/hardhat/dist/src/internal/builtin-plugins/run/task-action.js:14:5)
+    at async Promise.all (index 0)
+    at async main (/home/impera00/projects/nft-crypto-locker/cryptolocker-defi/node_modules/hardhat/src/internal/cli/main.ts:220:5)
+    at async file:///home/impera00/projects/nft-crypto-locker/cryptolocker-defi/node_modules/hardhat/dist/src/cli.js:21:1
