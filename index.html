@@ -1,1 +1,137 @@
-[Your HTML content from the document]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CryptoLocker - NFT DeFi Platform</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-animation"></div>
+  <div class="grid-overlay"></div>
+  
+  <!-- SFA Login Modal -->
+  <div id="sfaLoginModal" class="sfa-login-modal">
+    <div class="sfa-login-content">
+      <span class="close-modal" onclick="closeSFAModal()">×</span>
+      <h3>🔐 Web3Auth Login</h3>
+      <div class="sfa-buttons">
+        <div class="sfa-input-group">
+          <label for="sfaEmail">Email Address:</label>
+          <input type="email" id="sfaEmail" placeholder="your@email.com" />
+        </div>
+        <button onclick="loginWithSFA()" style="border-color: #00ff41; color: #00ff41;">
+          🔑 Generate Wallet & Login
+        </button>
+      </div>
+      <div class="sfa-info">
+        ✅ No OAuth needed<br/>
+        ✅ Wallet auto-generated<br/>
+        ✅ Non-custodial access<br/>
+        ⚠️ Same email = same wallet<br/>
+        💡 Fund wallet to transact
+      </div>
+      <div id="walletInfo" class="wallet-info" style="display:none;">
+        <div id="walletMessage"></div>
+        <div class="wallet-address" id="walletAddress"></div>
+        <div id="walletBalance"></div>
+      </div>
+    </div>
+  </div>
+  
+  <header>
+    <div class="logo">🔐 CryptoLocker</div>
+    <div class="header-controls">
+      <div class="connection-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="connectionText">Not Connected</span>
+      </div>
+      <div class="connect-buttons">
+        <button id="connectMetaMask" class="metamask">🦊 MetaMask</button>
+        <button id="connectSFA" style="border-color: #00ff41; color: #00ff41;">🔐 Web3Auth</button>
+        <button id="disconnectBtn" style="display:none; border-color:#ff4444; color:#ff4444;">Disconnect</button>
+      </div>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="dashboard">
+      <!-- Stats Card -->
+      <div class="card">
+        <h2>📊 Platform Stats</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">✓</div>
+            <div class="stat-label">Contract Active</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="userBalance">0</div>
+            <div class="stat-label">Your Balance</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="chainName">-</div>
+            <div class="stat-label">Network</div>
+          </div>
+        </div>
+        <div class="auth-method" id="authMethod" style="display:none;">
+          Connected via: <span id="authType">-</span>
+        </div>
+      </div>
+      
+      <!-- Quick Mint NFT -->
+      <div class="card">
+        <h2>⚡ Quick Mint NFT</h2>
+        <div class="payment-section">
+          <div style="font-size: 1.2rem;">💰 Minting Fee: 0.01 ETH</div>
+        </div>
+        <form id="quickMintForm">
+          <input type="text" id="nftName" placeholder="NFT Name" required />
+          <textarea id="nftDescription" placeholder="Description" rows="3"></textarea>
+          <select id="contentType">
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="audio">Audio</option>
+            <option value="text">Text</option>
+          </select>
+          <input type="file" id="nftFile" accept="image/*,video/*,audio/*,text/*" />
+          <button type="submit">🎨 Mint NFT (0.01 ETH)</button>
+        </form>
+      </div>
+      
+      <!-- Create Collection -->
+      <div class="card">
+        <h2>📁 Create Collection</h2>
+        <form id="createCollectionForm">
+          <input type="text" id="collectionName" placeholder="Collection Name" required />
+          <textarea id="collectionDescription" placeholder="Description" rows="3"></textarea>
+          <button type="submit">📦 Create Collection</button>
+        </form>
+      </div>
+      
+      <!-- Lock Tokens -->
+      <div class="card">
+        <h2>🔒 Lock Tokens</h2>
+        <form id="lockForm">
+          <input type="text" id="tokenAddress" placeholder="Token Contract Address" required />
+          <input type="number" id="lockAmount" placeholder="Amount" step="0.01" required />
+          <select id="lockDuration">
+            <option value="7">7 Days</option>
+            <option value="30">30 Days</option>
+            <option value="90">90 Days</option>
+            <option value="180">180 Days</option>
+            <option value="365">1 Year</option>
+          </select>
+          <label>
+            <input type="checkbox" id="useYield" />
+            <span>Enable Aave Yield Generation</span>
+          </label>
+          <button type="submit">🔐 Lock Tokens</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script src="cryptolocker.js"></script>
+</body>
+</html>
