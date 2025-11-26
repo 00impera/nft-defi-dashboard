@@ -1,20 +1,23 @@
-# Node modules
-/node_modules
+# Dependencies
+node_modules/
+package-lock.json
 
-# Compilation output
-/dist
+# Environment variables
+.env
+.env.local
 
-# pnpm deploy output
-/bundle
+# IDE
+.vscode/
+.idea/
 
-# Hardhat Build Artifacts
-/artifacts
+# OS
+.DS_Store
+Thumbs.db
 
-# Hardhat compilation (v2) support directory
-/cache
+# Logs
+*.log
+npm-debug.log*
 
-# Typechain output
-/types
-
-# Hardhat coverage reports
-/coverage
+# Build outputs
+dist/
+build/
