@@ -162,8 +162,8 @@
       async function loadStats() {
         if (!contract) return;
         try {
-          const totalSupply = await contract.call('totalSupply');
-          document.getElementById('totalNFTs').textContent = totalSupply.toString();
+          // Contract doesn't have totalSupply, just show "Active"
+document.getElementById('totalNFTs').textContent = '✓';
         } catch (error) {
           console.error('Error loading stats:', error);
         }
