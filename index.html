@@ -4,7 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CryptoLocker - NFT DeFi Platform</title>
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script>
+    // Wait for ethers to load
+    window.addEventListener('load', function() {
+      if (typeof ethers === 'undefined') {
+        console.error('Ethers.js failed to load');
+        alert('Failed to load required libraries. Please refresh the page.');
+      }
+    });
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -539,7 +548,7 @@
 
         state.contract = new ethers.Contract(
           CONFIG.CONTRACT_ADDRESS,
-          CONFIG.ABI,
+          CONFIG.CONTRACT_ABI,
           state.signer
         );
 
@@ -636,38 +645,71 @@
       // Test 4: Contract
       await new Promise(resolve => setTimeout(resolve, 300));
       try {
-        if (state.contract) {
+        // Initialize provider if not already done
+        if (!state.provider && typeof window.ethereum !== 'undefined') {
+          state.provider = new ethers.providers.Web3Provider(window.ethereum);
+        }
+        
+        if (state.provider) {
           const code = await state.provider.getCode(CONFIG.CONTRACT_ADDRESS);
           if (code !== '0x') {
-            tests.contract.textContent = '✅ Accessible';
+            tests.contract.textContent = '✅ Contract Found';
             tests.contract.className = 'test-status success';
+            
+            // Try to initialize contract if not already done
+            if (!state.contract && state.signer) {
+              state.contract = new ethers.Contract(
+                CONFIG.CONTRACT_ADDRESS,
+                CONFIG.CONTRACT_ABI,
+                state.signer
+              );
+            }
           } else {
-            tests.contract.textContent = '❌ No Code';
+            tests.contract.textContent = '❌ No Code at Address';
             tests.contract.className = 'test-status error';
           }
         } else {
-          tests.contract.textContent = '⚠️ Not Initialized';
+          tests.contract.textContent = '⚠️ No Provider';
           tests.contract.className = 'test-status error';
         }
       } catch (error) {
-        tests.contract.textContent = '❌ Error';
+        console.error('Contract test error:', error);
+        tests.contract.textContent = '❌ ' + error.message.substring(0, 20);
         tests.contract.className = 'test-status error';
       }
 
       // Test 5: Balance
       await new Promise(resolve => setTimeout(resolve, 300));
       try {
-        if (state.provider && state.userAddress) {
-          const balance = await state.provider.getBalance(state.userAddress);
+        // Get account first if not in state
+        let addressToCheck = state.userAddress;
+        if (!addressToCheck && typeof window.ethereum !== 'undefined') {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            addressToCheck = accounts[0];
+          }
+        }
+
+        if (!state.provider && typeof window.ethereum !== 'undefined') {
+          state.provider = new ethers.providers.Web3Provider(window.ethereum);
+        }
+
+        if (state.provider && addressToCheck) {
+          const balance = await state.provider.getBalance(addressToCheck);
           const ethBalance = ethers.utils.formatEther(balance);
           tests.balance.textContent = '✅ ' + parseFloat(ethBalance).toFixed(4) + ' ETH';
           tests.balance.className = 'test-status success';
+          
+          // Update user balance display
+          document.getElementById('userBalance').textContent = 
+            parseFloat(ethBalance).toFixed(4) + ' ETH';
         } else {
-          tests.balance.textContent = '⚠️ N/A';
+          tests.balance.textContent = '⚠️ Connect Wallet First';
           tests.balance.className = 'test-status error';
         }
       } catch (error) {
-        tests.balance.textContent = '❌ Error';
+        console.error('Balance test error:', error);
+        tests.balance.textContent = '❌ ' + error.message.substring(0, 20);
         tests.balance.className = 'test-status error';
       }
     }
@@ -691,7 +733,13 @@
     }
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
+      // Verify ethers is loaded
+      if (typeof ethers === 'undefined') {
+        showNotification('❌ Failed to load ethers.js library', 'error');
+        return;
+      }
+
       document.getElementById('connectBtn').addEventListener('click', connectWallet);
       document.getElementById('testBtn').addEventListener('click', runConnectionTest);
 
@@ -808,7 +856,7 @@
     }
 
     // Form Event Listeners
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
       // Quick Mint Form
       document.getElementById('quickMintForm').addEventListener('submit', async (e) => {
         e.preventDefault();
