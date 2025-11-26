@@ -5,26 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CryptoLocker - NFT DeFi Platform</title>
   <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-  <script>
-    // Wait for ethers to load
-    window.addEventListener('load', function() {
-      if (typeof ethers === 'undefined') {
-        console.error('Ethers.js failed to load');
-        alert('Failed to load required libraries. Please refresh the page.');
-      }
-    });
-  </script>
+  <script src="https://unpkg.com/thirdweb@latest/dist/thirdweb.umd.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
       background: #0a0a0a;
       color: #00ff41;
       font-family: 'Courier New', monospace;
       overflow-x: hidden;
     }
-
-    /* Animated Background */
     .bg-animation {
       position: fixed;
       top: 0;
@@ -36,12 +25,10 @@
                   radial-gradient(circle at 80% 80%, rgba(0, 255, 65, 0.15) 0%, transparent 50%);
       animation: pulse 8s ease-in-out infinite;
     }
-
     @keyframes pulse {
       0%, 100% { opacity: 0.5; }
       50% { opacity: 1; }
     }
-
     .grid-overlay {
       position: fixed;
       top: 0;
@@ -55,8 +42,6 @@
       z-index: 1;
       pointer-events: none;
     }
-
-    /* Header */
     header {
       position: relative;
       z-index: 100;
@@ -68,20 +53,17 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .logo {
       font-size: 1.5rem;
       font-weight: bold;
       color: #00ff41;
       text-shadow: 0 0 10px #00ff41;
     }
-
     .header-controls {
       display: flex;
       gap: 1rem;
       align-items: center;
     }
-
     .connection-status {
       display: flex;
       align-items: center;
@@ -91,7 +73,6 @@
       border-radius: 20px;
       font-size: 0.9rem;
     }
-
     .status-dot {
       width: 10px;
       height: 10px;
@@ -99,18 +80,14 @@
       background: #ff4444;
       animation: blink 2s infinite;
     }
-
     .status-dot.connected {
       background: #00ff41;
       box-shadow: 0 0 10px #00ff41;
     }
-
     @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
-
-    /* Main Container */
     .container {
       position: relative;
       z-index: 10;
@@ -118,15 +95,12 @@
       margin: 0 auto;
       padding: 2rem;
     }
-
-    /* Dashboard Grid */
     .dashboard {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 2rem;
       margin-bottom: 2rem;
     }
-
     .card {
       background: rgba(26, 26, 26, 0.8);
       backdrop-filter: blur(10px);
@@ -136,13 +110,11 @@
       box-shadow: 0 8px 32px rgba(0, 255, 65, 0.1);
       transition: all 0.3s ease;
     }
-
     .card:hover {
       border-color: #00ff41;
       box-shadow: 0 8px 32px rgba(0, 255, 65, 0.3);
       transform: translateY(-5px);
     }
-
     .card h2 {
       margin-bottom: 1rem;
       font-size: 1.3rem;
@@ -150,14 +122,11 @@
       align-items: center;
       gap: 0.5rem;
     }
-
-    /* Forms */
     form {
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
-
     input, textarea, select, button {
       width: 100%;
       font-size: 1rem;
@@ -169,13 +138,11 @@
       font-family: 'Courier New', monospace;
       transition: all 0.3s ease;
     }
-
     input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #00ff41;
       box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
     }
-
     button {
       background: transparent;
       border: 2px solid #00ff41;
@@ -184,75 +151,38 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-
     button:hover:not(:disabled) {
       background: #00ff41;
       color: #0a0a0a;
       box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
     }
-
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-
-    /* Stats Section */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
     }
-
     .stat-item {
       background: rgba(0, 255, 65, 0.1);
       padding: 1rem;
       border-radius: 8px;
       text-align: center;
     }
-
     .stat-value {
       font-size: 2rem;
       font-weight: bold;
       color: #00ff41;
       text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
     }
-
     .stat-label {
       font-size: 0.9rem;
       opacity: 0.7;
       margin-top: 0.5rem;
     }
-
-    /* Connection Test */
-    .test-results {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: rgba(0, 255, 65, 0.05);
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-
-    .test-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(0, 255, 65, 0.1);
-    }
-
-    .test-item:last-child {
-      border-bottom: none;
-    }
-
-    .test-status {
-      font-weight: bold;
-    }
-
-    .test-status.success { color: #00ff41; }
-    .test-status.error { color: #ff4444; }
-    .test-status.pending { color: #ffaa00; }
-
-    /* Notifications */
     .notification {
       position: fixed;
       top: 100px;
@@ -265,7 +195,6 @@
       box-shadow: 0 8px 32px rgba(0, 255, 65, 0.3);
       animation: slideIn 0.3s ease;
     }
-
     @keyframes slideIn {
       from {
         transform: translateX(400px);
@@ -276,45 +205,24 @@
         opacity: 1;
       }
     }
-
-    /* Responsive */
     @media (max-width: 768px) {
       header {
         flex-direction: column;
         gap: 1rem;
       }
-      
       .container {
         padding: 1rem;
       }
-      
       .dashboard {
         grid-template-columns: 1fr;
       }
     }
-
-    /* Loading Spinner */
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(0, 255, 65, 0.3);
-      border-radius: 50%;
-      border-top-color: #00ff41;
-      animation: spin 1s ease-in-out infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     label {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       cursor: pointer;
     }
-
     input[type="checkbox"] {
       width: auto;
       cursor: pointer;
@@ -322,11 +230,8 @@
   </style>
 </head>
 <body>
-  <!-- Animated Background -->
   <div class="bg-animation"></div>
   <div class="grid-overlay"></div>
-
-  <!-- Header -->
   <header>
     <div class="logo">🔐 CryptoLocker</div>
     <div class="header-controls">
@@ -337,57 +242,12 @@
       <button id="connectBtn">Connect Wallet</button>
     </div>
   </header>
-
-  <!-- Main Container -->
   <div class="container">
-    <!-- Dashboard -->
     <div class="dashboard">
-      <!-- Connection Test Card -->
-      <div class="card">
-        <h2>🔌 Connection Test</h2>
-        <button id="testBtn">Run Connection Test</button>
-        <div class="test-results" id="testResults" style="display: none;">
-          <div class="test-item">
-            <span>MetaMask Installed:</span>
-            <span class="test-status" id="testMetaMask">-</span>
-          </div>
-          <div class="test-item">
-            <span>Network:</span>
-            <span class="test-status" id="testNetwork">-</span>
-          </div>
-          <div class="test-item">
-            <span>Account Connected:</span>
-            <span class="test-status" id="testAccount">-</span>
-          </div>
-          <div class="test-item">
-            <span>Contract Access:</span>
-            <span class="test-status" id="testContract">-</span>
-          </div>
-          <div class="test-item">
-            <span>Balance:</span>
-            <span class="test-status" id="testBalance">-</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats Card -->
-      <div class="card">
-        <h2>📊 Platform Stats</h2>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-value" id="totalNFTs">0</div>
-            <div class="stat-label">Total NFTs</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="userBalance">0</div>
-            <div class="stat-label">Your Balance</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Quick Mint NFT -->
       <div class="card">
         <h2>⚡ Quick Mint NFT</h2>
+        <div id="checkout-widget-container" style="margin-bottom: 1rem;"></div>
         <form id="quickMintForm">
           <input type="text" id="nftName" placeholder="NFT Name" required />
           <textarea id="nftDescription" placeholder="Description" rows="3"></textarea>
@@ -401,42 +261,11 @@
           <button type="submit">🎨 Mint NFT</button>
         </form>
       </div>
-
-      <!-- Create Collection -->
-      <div class="card">
-        <h2>📁 Create Collection</h2>
-        <form id="createCollectionForm">
-          <input type="text" id="collectionName" placeholder="Collection Name" required />
-          <textarea id="collectionDescription" placeholder="Description" rows="3"></textarea>
-          <button type="submit">📦 Create Collection</button>
-        </form>
-      </div>
-
-      <!-- Lock Tokens -->
-      <div class="card">
-        <h2>🔒 Lock Tokens</h2>
-        <form id="lockForm">
-          <input type="text" id="tokenAddress" placeholder="Token Contract Address" required />
-          <input type="number" id="lockAmount" placeholder="Amount" step="0.01" required />
-          <select id="lockDuration">
-            <option value="7">7 Days</option>
-            <option value="30">30 Days</option>
-            <option value="90">90 Days</option>
-            <option value="180">180 Days</option>
-            <option value="365">1 Year</option>
-          </select>
-          <label>
-            <input type="checkbox" id="useYield" />
-            <span>Enable Aave Yield Generation</span>
-          </label>
-          <button type="submit">🔐 Lock Tokens</button>
-        </form>
-      </div>
+      <!-- You can add your other cards (stats, create collection, lock tokens, etc.) here -->
     </div>
   </div>
-
   <script>
-    // PART 1: Configuration & Initialization
+    // Configuration & Initialization
     const CONFIG = {
       CONTRACT_ADDRESS: '0xe274a85a123f9270d1e0617f7e04632d9d8640d9',
       BASE_CHAIN_ID: '0x2105', // 8453 in hex
@@ -444,12 +273,9 @@
       BASE_RPC: 'https://mainnet.base.org',
       CONTRACT_ABI: [
         "function mintNFT(string name, string description, string contentType, string ipfsUrl, uint256 royaltyPercent, string tokenURI) public returns (uint256)",
-        "function createCollection(string name, string description) public returns (uint256)",
-        "function lockTokens(address tokenAddress, uint256 amount, uint256 duration, bool useYield) public",
         "function totalSupply() public view returns (uint256)"
       ]
     };
-
     let state = {
       provider: null,
       signer: null,
@@ -457,8 +283,6 @@
       userAddress: null,
       isConnected: false
     };
-
-    // Utility Functions
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
       notification.className = 'notification';
@@ -468,12 +292,10 @@
       document.body.appendChild(notification);
       setTimeout(() => notification.remove(), 4000);
     }
-
     function updateConnectionUI(connected, address = null) {
       const statusDot = document.getElementById('statusDot');
       const connectionText = document.getElementById('connectionText');
       const connectBtn = document.getElementById('connectBtn');
-
       if (connected && address) {
         statusDot.classList.add('connected');
         connectionText.textContent = address.slice(0, 6) + '...' + address.slice(-4);
@@ -488,8 +310,6 @@
         state.isConnected = false;
       }
     }
-
-    // MetaMask Detection
     function checkMetaMask() {
       if (typeof window.ethereum === 'undefined') {
         showNotification('⚠️ MetaMask not detected!', 'error');
@@ -498,8 +318,6 @@
       }
       return true;
     }
-
-    // Network Functions
     async function switchToBase() {
       try {
         await window.ethereum.request({
@@ -528,46 +346,31 @@
         throw error;
       }
     }
-
-    // Main Connection Function
     async function connectWallet() {
       if (!checkMetaMask()) return;
-
       try {
         showNotification('🔄 Connecting to MetaMask...');
-
-        const accounts = await window.ethereum.request({ 
-          method: 'eth_requestAccounts' 
-        });
-
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         state.userAddress = accounts[0];
         state.provider = new ethers.providers.Web3Provider(window.ethereum);
         state.signer = state.provider.getSigner();
-
         await switchToBase();
-
         state.contract = new ethers.Contract(
           CONFIG.CONTRACT_ADDRESS,
           CONFIG.CONTRACT_ABI,
           state.signer
         );
-
         updateConnectionUI(true, state.userAddress);
         showNotification('✅ Wallet Connected!', 'success');
-
         await loadStats();
-
-        // Event listeners
         window.ethereum.on('accountsChanged', handleAccountsChanged);
         window.ethereum.on('chainChanged', () => location.reload());
-
       } catch (error) {
         console.error('Connection error:', error);
         showNotification('❌ Connection failed: ' + error.message, 'error');
         updateConnectionUI(false);
       }
     }
-
     function handleAccountsChanged(accounts) {
       if (accounts.length === 0) {
         showNotification('Please connect to MetaMask', 'error');
@@ -579,198 +382,41 @@
         loadStats();
       }
     }
-
-    // Connection Test Function
-    async function runConnectionTest() {
-      const results = document.getElementById('testResults');
-      results.style.display = 'block';
-
-      const tests = {
-        metaMask: document.getElementById('testMetaMask'),
-        network: document.getElementById('testNetwork'),
-        account: document.getElementById('testAccount'),
-        contract: document.getElementById('testContract'),
-        balance: document.getElementById('testBalance')
-      };
-
-      // Reset all
-      Object.values(tests).forEach(el => {
-        el.textContent = '⏳';
-        el.className = 'test-status pending';
-      });
-
-      // Test 1: MetaMask
-      await new Promise(resolve => setTimeout(resolve, 300));
-      if (typeof window.ethereum !== 'undefined') {
-        tests.metaMask.textContent = '✅ Installed';
-        tests.metaMask.className = 'test-status success';
-      } else {
-        tests.metaMask.textContent = '❌ Not Found';
-        tests.metaMask.className = 'test-status error';
-        return;
-      }
-
-      // Test 2: Network
-      await new Promise(resolve => setTimeout(resolve, 300));
-      try {
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (parseInt(chainId, 16) === CONFIG.BASE_CHAIN_ID_DEC) {
-          tests.network.textContent = '✅ Base Network';
-          tests.network.className = 'test-status success';
-        } else {
-          tests.network.textContent = '⚠️ Wrong Network';
-          tests.network.className = 'test-status error';
-        }
-      } catch (error) {
-        tests.network.textContent = '❌ Error';
-        tests.network.className = 'test-status error';
-      }
-
-      // Test 3: Account
-      await new Promise(resolve => setTimeout(resolve, 300));
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          tests.account.textContent = '✅ ' + accounts[0].slice(0, 10) + '...';
-          tests.account.className = 'test-status success';
-        } else {
-          tests.account.textContent = '⚠️ Not Connected';
-          tests.account.className = 'test-status error';
-        }
-      } catch (error) {
-        tests.account.textContent = '❌ Error';
-        tests.account.className = 'test-status error';
-      }
-
-      // Test 4: Contract
-      await new Promise(resolve => setTimeout(resolve, 300));
-      try {
-        // Initialize provider if not already done
-        if (!state.provider && typeof window.ethereum !== 'undefined') {
-          state.provider = new ethers.providers.Web3Provider(window.ethereum);
-        }
-        
-        if (state.provider) {
-          const code = await state.provider.getCode(CONFIG.CONTRACT_ADDRESS);
-          if (code !== '0x') {
-            tests.contract.textContent = '✅ Contract Found';
-            tests.contract.className = 'test-status success';
-            
-            // Try to initialize contract if not already done
-            if (!state.contract && state.signer) {
-              state.contract = new ethers.Contract(
-                CONFIG.CONTRACT_ADDRESS,
-                CONFIG.CONTRACT_ABI,
-                state.signer
-              );
-            }
-          } else {
-            tests.contract.textContent = '❌ No Code at Address';
-            tests.contract.className = 'test-status error';
-          }
-        } else {
-          tests.contract.textContent = '⚠️ No Provider';
-          tests.contract.className = 'test-status error';
-        }
-      } catch (error) {
-        console.error('Contract test error:', error);
-        tests.contract.textContent = '❌ ' + error.message.substring(0, 20);
-        tests.contract.className = 'test-status error';
-      }
-
-      // Test 5: Balance
-      await new Promise(resolve => setTimeout(resolve, 300));
-      try {
-        // Get account first if not in state
-        let addressToCheck = state.userAddress;
-        if (!addressToCheck && typeof window.ethereum !== 'undefined') {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts.length > 0) {
-            addressToCheck = accounts[0];
-          }
-        }
-
-        if (!state.provider && typeof window.ethereum !== 'undefined') {
-          state.provider = new ethers.providers.Web3Provider(window.ethereum);
-        }
-
-        if (state.provider && addressToCheck) {
-          const balance = await state.provider.getBalance(addressToCheck);
-          const ethBalance = ethers.utils.formatEther(balance);
-          tests.balance.textContent = '✅ ' + parseFloat(ethBalance).toFixed(4) + ' ETH';
-          tests.balance.className = 'test-status success';
-          
-          // Update user balance display
-          document.getElementById('userBalance').textContent = 
-            parseFloat(ethBalance).toFixed(4) + ' ETH';
-        } else {
-          tests.balance.textContent = '⚠️ Connect Wallet First';
-          tests.balance.className = 'test-status error';
-        }
-      } catch (error) {
-        console.error('Balance test error:', error);
-        tests.balance.textContent = '❌ ' + error.message.substring(0, 20);
-        tests.balance.className = 'test-status error';
-      }
-    }
-
-    // Load Stats
     async function loadStats() {
       if (!state.contract) return;
-
       try {
         const totalSupply = await state.contract.totalSupply();
         document.getElementById('totalNFTs').textContent = totalSupply.toString();
-
-        if (state.provider && state.userAddress) {
-          const balance = await state.provider.getBalance(state.userAddress);
-          document.getElementById('userBalance').textContent = 
-            parseFloat(ethers.utils.formatEther(balance)).toFixed(4) + ' ETH';
-        }
       } catch (error) {
         console.error('Error loading stats:', error);
       }
     }
-
-    // Initialize on page load
-    window.addEventListener('load', () => {
-      // Verify ethers is loaded
-      if (typeof ethers === 'undefined') {
-        showNotification('❌ Failed to load ethers.js library', 'error');
-        return;
-      }
-
-      document.getElementById('connectBtn').addEventListener('click', connectWallet);
-      document.getElementById('testBtn').addEventListener('click', runConnectionTest);
-
-      // Check if already connected
-      if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.request({ method: 'eth_accounts' })
-          .then(accounts => {
-            if (accounts.length > 0) {
-              connectWallet();
-            }
-          });
-      }
-    });
-  </script>
-  
-  <script>
-    // PART 2: Transaction Functions & Form Handlers
-
+    // CheckoutWidget Integration
+    function showCheckoutWidget({ amount, tokenAddress, chain, onSuccess }) {
+      document.getElementById("checkout-widget-container").innerHTML = "";
+      const widget = new thirdweb.CheckoutWidget({
+        clientId: "10f433657d1018e7003e5cd1cb9c61d7",
+        chain,
+        amount: amount.toString(),
+        tokenAddress,
+        seller: "0x592B35c8917eD36c39Ef73D0F5e92B0173560b2e",
+        name: "Mint NFT",
+        description: "Pay to mint your NFT",
+        onPaymentSuccess: onSuccess,
+        onError: (error) => showNotification("Payment failed: " + error.message, "error"),
+      });
+      widget.render(document.getElementById("checkout-widget-container"));
+    }
     // NFT Minting
     async function mintNFT(name, description, contentType, file) {
       if (!state.isConnected || !state.contract) {
         showNotification('⚠️ Please connect your wallet first', 'error');
         return;
       }
-
       try {
         showNotification('🔄 Preparing to mint NFT...');
-
         const ipfsUrl = file ? "ipfs://QmExample" + Date.now() : "";
         const tokenURI = ipfsUrl || "ipfs://QmExample" + Date.now();
-
         const tx = await state.contract.mintNFT(
           name,
           description,
@@ -779,14 +425,11 @@
           0,
           tokenURI
         );
-
         showNotification('⏳ Transaction sent, waiting for confirmation...');
         await tx.wait();
-
         showNotification('✅ NFT Minted Successfully!', 'success');
         document.getElementById('quickMintForm').reset();
         await loadStats();
-
       } catch (error) {
         console.error('Mint error:', error);
         let errorMsg = error.message;
@@ -795,94 +438,24 @@
         showNotification('❌ Mint Error: ' + errorMsg, 'error');
       }
     }
-
-    // Create Collection
-    async function createCollection(name, description) {
-      if (!state.isConnected || !state.contract) {
-        showNotification('⚠️ Please connect your wallet first', 'error');
-        return;
-      }
-
-      try {
-        showNotification('🔄 Creating collection...');
-
-        const tx = await state.contract.createCollection(name, description);
-        showNotification('⏳ Transaction sent, waiting for confirmation...');
-        await tx.wait();
-
-        showNotification('✅ Collection Created Successfully!', 'success');
-        document.getElementById('createCollectionForm').reset();
-
-      } catch (error) {
-        console.error('Collection error:', error);
-        let errorMsg = error.message;
-        if (error.reason) errorMsg = error.reason;
-        if (error.data?.message) errorMsg = error.data.message;
-        showNotification('❌ Error: ' + errorMsg, 'error');
-      }
-    }
-
-    // Lock Tokens
-    async function lockTokens(tokenAddress, amount, duration, useYield) {
-      if (!state.isConnected || !state.contract) {
-        showNotification('⚠️ Please connect your wallet first', 'error');
-        return;
-      }
-
-      try {
-        showNotification('🔄 Locking tokens...');
-
-        const amountWei = ethers.utils.parseEther(amount.toString());
-        const tx = await state.contract.lockTokens(
-          tokenAddress,
-          amountWei,
-          duration,
-          useYield
-        );
-
-        showNotification('⏳ Transaction sent, waiting for confirmation...');
-        await tx.wait();
-
-        showNotification('✅ Tokens Locked Successfully!', 'success');
-        document.getElementById('lockForm').reset();
-
-      } catch (error) {
-        console.error('Lock error:', error);
-        let errorMsg = error.message;
-        if (error.reason) errorMsg = error.reason;
-        if (error.data?.message) errorMsg = error.data.message;
-        showNotification('❌ Error: ' + errorMsg, 'error');
-      }
-    }
-
-    // Form Event Listeners
     window.addEventListener('load', () => {
-      // Quick Mint Form
+      document.getElementById('connectBtn').addEventListener('click', connectWallet);
+      // Quick Mint Form with CheckoutWidget payment
       document.getElementById('quickMintForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('nftName').value;
         const description = document.getElementById('nftDescription').value;
         const contentType = document.getElementById('contentType').value;
         const file = document.getElementById('nftFile').files[0];
-        await mintNFT(name, description, contentType, file);
-      });
-
-      // Create Collection Form
-      document.getElementById('createCollectionForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('collectionName').value;
-        const description = document.getElementById('collectionDescription').value;
-        await createCollection(name, description);
-      });
-
-      // Lock Tokens Form
-      document.getElementById('lockForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const tokenAddress = document.getElementById('tokenAddress').value;
-        const amount = document.getElementById('lockAmount').value;
-        const duration = parseInt(document.getElementById('lockDuration').value) * 86400;
-        const useYield = document.getElementById('useYield').checked;
-        await lockTokens(tokenAddress, amount, duration, useYield);
+        showCheckoutWidget({
+          amount: 0.01,
+          tokenAddress: "0x0000000000000000000000000000000000000000", // ETH
+          chain: "base",
+          onSuccess: async () => {
+            await mintNFT(name, description, contentType, file);
+            document.getElementById("checkout-widget-container").innerHTML = "";
+          }
+        });
       });
     });
   </script>
