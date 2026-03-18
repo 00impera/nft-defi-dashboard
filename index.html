@@ -1014,38 +1014,58 @@ async function switchToBase() {
 ══════════════════════════════════════ */
 async function connectMetaMask() {
   if (!window.ethereum) {
-    toast('⚠ MetaMask not installed. Install from metamask.io', 'err', 5000);
+    toast('⚠ MetaMask not found. Install it at metamask.io then refresh.', 'err', 6000);
+    window.open('https://metamask.io/download/', '_blank');
     return;
   }
+  // Check if it's actually MetaMask (not another injected wallet)
+  if (!window.ethereum.isMetaMask) {
+    toast('⚠ A different wallet is injected. Please use MetaMask.', 'err', 5000);
+    return;
+  }
+
   const opt = document.querySelector('.wallet-opt.mm');
   opt.style.opacity = '.5'; opt.style.pointerEvents = 'none';
+  opt.querySelector('span').textContent = '⏳';
+
   try {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    if (!accounts || accounts.length === 0) {
+      toast('No accounts returned. Unlock MetaMask and try again.', 'err'); return;
+    }
+
     S.address = accounts[0];
     S.provider = new ethers.providers.Web3Provider(window.ethereum);
     S.signer = S.provider.getSigner();
     S.authType = 'MetaMask 🦊';
     S.contract = new ethers.Contract(CFG.CONTRACT, CFG.ABI, S.signer);
 
-    // Auto-switch if not on Base
+    // Check network — prompt switch if needed
     const net = await S.provider.getNetwork();
-    if (net.chainId !== CFG.CHAIN_ID) await switchToBase();
+    if (net.chainId !== CFG.CHAIN_ID) {
+      toast('Wrong network — switching to Base…', 'info');
+      await switchToBase();
+    }
 
     syncUI();
     await refreshBalance();
     toast('✓ MetaMask connected', 'ok');
 
-    // Listeners
     window.ethereum.on('accountsChanged', (accs) => {
-      if (!accs.length) disconnect();
-      else { S.address = accs[0]; syncUI(); refreshBalance(); }
+      if (!accs.length) { disconnect(); toast('MetaMask locked or disconnected', 'info'); }
+      else { S.address = accs[0]; syncUI(); refreshBalance(); toast('Account switched', 'info'); }
     });
-    window.ethereum.on('chainChanged', () => location.reload());
+    window.ethereum.on('chainChanged', () => {
+      toast('Network changed — reloading…', 'info');
+      setTimeout(() => location.reload(), 1000);
+    });
   } catch(e) {
-    if (e.code === 4001) toast('Connection rejected', 'err');
-    else toast('❌ ' + (e.message || 'Connection failed').slice(0,80), 'err');
+    if (e.code === 4001) toast('❌ Connection rejected by user', 'err');
+    else if (e.code === -32002) toast('⚠ MetaMask already has a pending request — check the extension', 'err', 6000);
+    else toast('❌ ' + (e.message || 'Connection failed').slice(0, 80), 'err');
   } finally {
     opt.style.opacity = ''; opt.style.pointerEvents = '';
+    opt.querySelector('span').textContent = '🦊';
   }
 }
 
@@ -1055,10 +1075,12 @@ async function connectMetaMask() {
 function showEmailSection() {
   document.getElementById('walletOpts').style.display = 'none';
   document.getElementById('emailSection').classList.add('open');
+  document.getElementById('sfaEmail').focus();
 }
 function hideEmailSection() {
   document.getElementById('emailSection').classList.remove('open');
   document.getElementById('walletOpts').style.display = 'flex';
+  document.getElementById('walletOpts').style.flexDirection = 'column';
 }
 
 async function loginWithWeb3Auth() {
@@ -1071,11 +1093,31 @@ async function loginWithWeb3Auth() {
   btn.disabled = true; btn.textContent = '⏳  Generating wallet…';
 
   try {
-    // SHA-256 of email+salt → deterministic private key (same email = same wallet)
-    const encoded = new TextEncoder().encode(email + ':cryptolocker-v1');
-    const hash = await crypto.subtle.digest('SHA-256', encoded);
-    const hex = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    const privKey = '0x' + hex;
+    let privKey;
+
+    // crypto.subtle requires https:// or localhost — fallback for file:// 
+    if (window.isSecureContext && crypto?.subtle) {
+      const encoded = new TextEncoder().encode(email + ':cryptolocker-v1');
+      const hash = await crypto.subtle.digest('SHA-256', encoded);
+      const hex = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+      privKey = '0x' + hex;
+    } else {
+      // Simple deterministic fallback for non-secure contexts (file://)
+      let h = 0x811c9dc5;
+      const str = email + ':cryptolocker-v1';
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = (h * 0x01000193) >>> 0;
+      }
+      // Expand to 32 bytes using a simple LCG
+      let seed = h;
+      const bytes = [];
+      for (let i = 0; i < 32; i++) {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        bytes.push(seed & 0xff);
+      }
+      privKey = '0x' + bytes.map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
 
     const wallet = new ethers.Wallet(privKey);
     S.provider = new ethers.providers.JsonRpcProvider(CFG.RPC);
@@ -1083,6 +1125,8 @@ async function loginWithWeb3Auth() {
     S.address = wallet.address;
     S.authType = 'Web3Auth 🔑';
     S.contract = new ethers.Contract(CFG.CONTRACT, CFG.ABI, S.signer);
+    // Web3Auth wallets are never on Base natively — mark as Base for RPC-connected wallets
+    S.isBase = true;
 
     syncUI();
     await refreshBalance();
@@ -1223,6 +1267,11 @@ async function lockTokens() {
 window.addEventListener('load', () => {
   updateDuration(1); // default 30d
   syncUI();
+
+  // Warn if opened as file:// — MetaMask won't inject properly
+  if (location.protocol === 'file:') {
+    toast('⚠ Opened as file:// — MetaMask may not work. Serve via localhost or https://.', 'err', 8000);
+  }
 
   // Auto-detect MetaMask account if already connected
   if (window.ethereum?.selectedAddress) {
