@@ -4,7 +4,30 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>CryptoLocker — Token Lock Protocol</title>
-<script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+<script>
+// Load ethers.js from multiple CDN fallbacks
+(function() {
+  const cdns = [
+    'https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js'
+  ];
+  let idx = 0;
+  function tryLoad() {
+    if (idx >= cdns.length) {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.innerHTML = '<div style="color:#ef4444;font-family:monospace;padding:2rem;background:#03040a;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1rem;">❌ Failed to load ethers.js.<br/>Check your internet connection and reload.</div>';
+      });
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = cdns[idx++];
+    s.onerror = tryLoad;
+    document.head.appendChild(s);
+  }
+  tryLoad();
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -1013,6 +1036,9 @@ async function switchToBase() {
    METAMASK
 ══════════════════════════════════════ */
 async function connectMetaMask() {
+  if (typeof ethers === 'undefined') {
+    toast('❌ ethers.js failed to load. Check your internet and reload the page.', 'err', 8000); return;
+  }
   if (!window.ethereum) {
     toast('⚠ MetaMask not found. Install it at metamask.io then refresh.', 'err', 6000);
     window.open('https://metamask.io/download/', '_blank');
@@ -1084,6 +1110,9 @@ function hideEmailSection() {
 }
 
 async function loginWithWeb3Auth() {
+  if (typeof ethers === 'undefined') {
+    toast('❌ ethers.js failed to load. Check your internet and reload.', 'err', 8000); return;
+  }
   const email = document.getElementById('sfaEmail').value.trim();
   if (!email || !email.includes('@')) {
     toast('⚠ Enter a valid email address', 'err');
@@ -1265,15 +1294,18 @@ async function lockTokens() {
    INIT
 ══════════════════════════════════════ */
 window.addEventListener('load', () => {
-  updateDuration(1); // default 30d
+  updateDuration(1);
   syncUI();
 
-  // Warn if opened as file:// — MetaMask won't inject properly
+  // Confirm ethers loaded
+  if (typeof ethers === 'undefined') {
+    toast('❌ ethers.js not loaded — check internet connection and reload', 'err', 10000);
+  }
+
   if (location.protocol === 'file:') {
     toast('⚠ Opened as file:// — MetaMask may not work. Serve via localhost or https://.', 'err', 8000);
   }
 
-  // Auto-detect MetaMask account if already connected
   if (window.ethereum?.selectedAddress) {
     connectMetaMask();
   }
